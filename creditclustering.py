@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
 import plotly.graph_objects as go
+from mpl_toolkits.mplot3d import Axes3D
 
 
 df = pd.read_csv('creditcustomersegmentation.csv')
@@ -38,7 +39,7 @@ df["CREDIT_CARD_SEGMENTS"] = df["CREDIT_CARD_SEGMENTS"].map({0: "Cluster 1", 1:
 
 print(df["CREDIT_CARD_SEGMENTS"].head(10)) #Mostrar as clusters dos 10 primeiros usuários.
 
-
+#Visualização via Web
 PLOT = go.Figure()
 for i in list(df["CREDIT_CARD_SEGMENTS"].unique()):
     
@@ -57,3 +58,36 @@ PLOT.update_layout(width = 800, height = 800, autosize = True, showlegend = True
                                 zaxis=dict(title = 'CREDIT_LIMIT', titlefont_color = 'black')),
                    font = dict(family = "Gilroy", color  = 'black', size = 12))
 PLOT.show()
+
+
+
+#Gráfico no idle do python
+unique_segments = df['CREDIT_CARD_SEGMENTS'].unique() #mostrar os segmentos de 0 até 4
+
+# Crie uma figura 3D
+fig = plt.figure(figsize=(8, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Defina cores diferentes para cada segmento
+colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+for i, segment in enumerate(unique_segments):
+    segment_data = df[df['CREDIT_CARD_SEGMENTS'] == segment]
+    x = segment_data['BALANCE']
+    y = segment_data['PURCHASES']
+    z = segment_data['CREDIT_LIMIT']
+    label = str(segment)
+    color = colors[i % len(colors)]
+    
+    # Plote os pontos 3D
+    ax.scatter(x, y, z, label=label, c=color, s=60)
+
+# Defina rótulos dos eixos e legenda
+ax.set_xlabel('BALANCE')
+ax.set_ylabel('PURCHASES')
+ax.set_zlabel('CREDIT_LIMIT')
+ax.set_title('3D Scatter Plot of CREDIT_CARD_SEGMENTS')
+ax.legend()
+
+# Exiba o gráfico
+plt.show()
