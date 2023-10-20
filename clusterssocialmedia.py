@@ -7,6 +7,10 @@ import plotly.io as pio
 import pandas as pd
 pio.templates.default = "plotly_white"
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import silhouette_score
+from sklearn.metrics import davies_bouldin_score
+from sklearn.metrics import calinski_harabasz_score
+from sklearn.metrics import adjusted_rand_score
 
 
 #Conectando Base de dados ao ambiente
@@ -99,9 +103,73 @@ from sklearn.cluster import KMeans
 kmeans = KMeans(n_clusters=3)
 clusters = kmeans.fit_predict(clustering_data)
 df["Segments"] = clusters
+df["Segments"] = pd.DataFrame(df["Segments"]) #Transformando o valor em um DataFrame de verdade
+
 print(df['Segments'].head(10))
 
 print(df["Segments"].value_counts())
+
+
+#Métrica de precisão ------------------------ Silhuette Score
+x = df["Segments"].values.reshape(-1, 1)
+labels = df["Segments"].to_numpy()
+labels = labels.flatten()  
+
+silhouette_avg = silhouette_score(x, labels)
+print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
+
+
+
+
+#Métrica de precisão ----------------------- Inetria(WCSS)
+
+inertia_values = []
+
+# Testar diferentes números de clusters (K) para o K-Means
+for k in range(1, 11):
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    kmeans.fit(df["Segments"].values.reshape(-1, 1))
+    inertia = kmeans.inertia_
+    inertia_values.append(inertia)
+print('Métrica de Precisão ------ Inertia: ',inertia_values)
+
+# Plotar um gráfico do valor de Inertia em função do número de clusters (K)
+plt.plot(range(1, 11), inertia_values, marker='o')
+plt.title('Gráfico de Inertia em função do número de clusters (K)')
+plt.xlabel('Número de Clusters (K)')
+plt.ylabel('Inertia (WCSS)')
+plt.show()
+
+
+#Métric de precisão ------------------- Davies Bouldin Index
+k = 3
+
+# Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
+kmeans = KMeans(n_clusters=k, random_state=0)
+kmeans.fit(x)
+
+# Obtenha os rótulos de cluster para cada ponto de dados.
+labels = kmeans.labels_
+
+# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
+db_score = davies_bouldin_score(x, labels)
+
+print(f"Índice Davies-Bouldin: {db_score}")
+
+
+
+
+#Métrica de precisão --------------- Calinski Harabasz Index
+ch_score = calinski_harabasz_score(x, labels)
+print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) #Valor  de 1; analisar e comparar com modelos com n_cluster diferentes
+
+
+
+#Métrica de precisão ---------------ARI(Adjusted Rand Score)
+
+
+# Calcular o ARI ------------------- Não possuimos true_labels, somente predict_labels. Portanto, Não a métrica de precisão não será usada
+
 
 df["Segments"] = df["Segments"].map({0: "Retained", 1: 
     "Churn", 2: "Needs Attention"})
@@ -121,3 +189,6 @@ PLOT.update_layout(width = 800, height = 800, autosize = True, showlegend = True
                    xaxis_title = 'Last Visited Minutes',
 )
 PLOT.show()
+
+
+
