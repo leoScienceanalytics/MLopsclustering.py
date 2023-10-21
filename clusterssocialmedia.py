@@ -112,9 +112,7 @@ print(df["Segments"].value_counts())
 
 #Métrica de precisão ------------------------ Silhuette Score
 x = df["Segments"].values.reshape(-1, 1)
-labels = df["Segments"].to_numpy()
-labels = labels.flatten()  
-
+labels = kmeans.labels_
 silhouette_avg = silhouette_score(x, labels)
 print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 

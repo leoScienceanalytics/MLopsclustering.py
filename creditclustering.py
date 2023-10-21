@@ -41,9 +41,7 @@ df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
 
 #Métrica de precisão ------------------------ Silhuette Score
 x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
-labels = df["CREDIT_CARD_SEGMENTS"].to_numpy()
-labels = labels.flatten()  
-
+labels = kmeans.labels_
 silhouette_avg = silhouette_score(x, labels)
 print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
