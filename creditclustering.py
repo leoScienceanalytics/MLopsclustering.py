@@ -39,61 +39,6 @@ clusters = kmeans.fit_predict(clustering_data) #Previsão da segmentação de me
 df["CREDIT_CARD_SEGMENTS"] = clusters
 df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
 
-#Métrica de precisão ------------------------ Silhuette Score
-x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
-labels = kmeans.labels_
-silhouette_avg = silhouette_score(x, labels)
-print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
-
-
-
-
-#Métrica de precisão ----------------------- Inetria(WCSS)
-
-inertia_values = []
-
-# Testar diferentes números de clusters (K) para o K-Means
-for k in range(1, 11):
-    kmeans = KMeans(n_clusters=k, random_state=0)
-    kmeans.fit(df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1))
-    inertia = kmeans.inertia_
-    inertia_values.append(inertia)
-print('Métrica de Precisão ------ Inertia: ',inertia_values)
-
-# Plotar um gráfico do valor de Inertia em função do número de clusters (K)
-plt.plot(range(1, 11), inertia_values, marker='o')
-plt.title('Gráfico de Inertia em função do número de clusters (K)')
-plt.xlabel('Número de Clusters (K)')
-plt.ylabel('Inertia (WCSS)')
-plt.show()
-
-
-#Métric de precisão ------------------- Davies Bouldin Index
-k = 3
-
-# Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
-kmeans = KMeans(n_clusters=k, random_state=0)
-kmeans.fit(x)
-
-# Obtenha os rótulos de cluster para cada ponto de dados.
-labels = kmeans.labels_
-
-# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
-db_score = davies_bouldin_score(x, labels)
-
-print(f"Índice Davies-Bouldin: {db_score}")
-
-
-#Métrica de precisão --------------- Calinski Harabasz Index
-ch_score = calinski_harabasz_score(x, labels)
-print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) #Valor  de 1; analisar e comparar com modelos com n_cluster diferentes
-
-
-
-# Calcular o ARI ------------------- Não possuimos true_labels, somente predict_labels. Portanto, Não a métrica de precisão não será usada
-
-
-
 
 df["CREDIT_CARD_SEGMENTS"] = df["CREDIT_CARD_SEGMENTS"].map({0: "Cluster 1", 1: 
     "Cluster 2", 2: "Cluster 3", 3: "Cluster 4", 4: "Cluster 5"}) #Mapeando as clusters
@@ -152,3 +97,65 @@ ax.legend()
 
 # Exiba o gráfico
 plt.show()
+
+
+
+
+
+
+
+#Métrica de precisão ------------------------ Silhuette Score
+x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
+labels = kmeans.labels_
+silhouette_avg = silhouette_score(x, labels)
+print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
+
+
+
+
+#Métrica de precisão ----------------------- Inetria(WCSS)
+
+inertia_values = []
+
+# Testar diferentes números de clusters (K) para o K-Means
+for k in range(1, 11):
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    kmeans.fit(df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1))
+    inertia = kmeans.inertia_
+    inertia_values.append(inertia)
+print('Métrica de Precisão ------ Inertia: ',inertia_values)
+
+# Plotar um gráfico do valor de Inertia em função do número de clusters (K)
+plt.plot(range(1, 11), inertia_values, marker='o')
+plt.title('Gráfico de Inertia em função do número de clusters (K)')
+plt.xlabel('Número de Clusters (K)')
+plt.ylabel('Inertia (WCSS)')
+plt.show()
+
+
+#Métric de precisão ------------------- Davies Bouldin Index
+k = 3
+
+# Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
+kmeans = KMeans(n_clusters=k, random_state=0)
+kmeans.fit(x)
+
+# Obtenha os rótulos de cluster para cada ponto de dados.
+labels = kmeans.labels_
+
+# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
+db_score = davies_bouldin_score(x, labels)
+
+print(f"Índice Davies-Bouldin: {db_score}")
+
+
+#Métrica de precisão --------------- Calinski Harabasz Index
+ch_score = calinski_harabasz_score(x, labels)
+print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) #Valor  de 1; analisar e comparar com modelos com n_cluster diferentes
+
+
+
+# Calcular o ARI ------------------- Não possuimos true_labels, somente predict_labels. Portanto, Não a métrica de precisão não será usada
+
+
+

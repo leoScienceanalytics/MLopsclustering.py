@@ -33,9 +33,9 @@ print(f'Lowest Spend of the Users = {df["Average Spent on App (INR)"].min()}')
 
 
 # Definindo as colunas de dados
-z = df['Ratings']
-x = df["Average Screen Time"]
-y = df["Average Spent on App (INR)"]
+z = df['Ratings'].values
+x = df["Average Screen Time"].values
+y = df["Average Spent on App (INR)"].values
 size = df["Average Spent on App (INR)"]
 size1= df['Ratings']
 colors = df["Status"]
@@ -69,8 +69,8 @@ plt.show()
 
 #Rating por Tempo médio de tela
 #Definindo novas colunas
-z = df['Ratings']
-x = df["Average Screen Time"]
+z = df['Ratings'].values
+x = df["Average Screen Time"].values
 size1= df['Ratings']
 colors = df["Status"]
 
@@ -107,9 +107,35 @@ clusters = kmeans.fit_predict(clustering_data)
 df["Segments"] = clusters
 df["Segments"] = pd.DataFrame(df["Segments"]) #Transformando o valor em um DataFrame de verdade
 
-print(df['Segments'].head(10))
+print(df['Segments'].head(50))
 
 print(df["Segments"].value_counts())
+
+
+df["Segments"] = df["Segments"].map({0: "Retained", 1: 
+    "Churn", 2: "Needs Attention"})
+
+print(df['Segments'].head(50))
+
+print(df["Segments"].value_counts())
+
+PLOT = go.Figure()
+for i in list(df["Segments"].unique()):
+    
+
+    PLOT.add_trace(go.Scatter(x = df[df["Segments"]== i]['Last Visited Minutes'],
+                                y = df[df["Segments"] == i]['Average Spent on App (INR)'],
+                                mode = 'markers',marker_size = 6, marker_line_width = 1,
+                                name = str(i)))
+PLOT.update_traces(hovertemplate='Last Visited Minutes: %{x} <br>Average Spent on App (INR): %{y}')
+
+    
+PLOT.update_layout(width = 800, height = 800, autosize = True, showlegend = True,
+                   yaxis_title = 'Average Spent on App (INR)',
+                   xaxis_title = 'Last Visited Minutes',
+)
+PLOT.show()
+
 
 
 #Métrica de precisão ------------------------ Silhuette Score
@@ -148,7 +174,7 @@ kmeans = KMeans(n_clusters=k, random_state=0)
 kmeans.fit(x)
 
 # Obtenha os rótulos de cluster para cada ponto de dados.
-centroid = kmeans.cluster_centers_
+labels = kmeans.labels_
 
 # Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
 db_score = davies_bouldin_score(x, kmeans.labels_)
@@ -169,25 +195,6 @@ print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) 
 
 # Calcular o ARI ------------------- Não possuimos true_labels, somente predict_labels. Portanto, Não a métrica de precisão não será usada
 
-
-df["Segments"] = df["Segments"].map({0: "Retained", 1: 
-    "Churn", 2: "Needs Attention"})
-PLOT = go.Figure()
-for i in list(df["Segments"].unique()):
-    
-
-    PLOT.add_trace(go.Scatter(x = df[df["Segments"]== i]['Last Visited Minutes'],
-                                y = df[df["Segments"] == i]['Average Spent on App (INR)'],
-                                mode = 'markers',marker_size = 6, marker_line_width = 1,
-                                name = str(i)))
-PLOT.update_traces(hovertemplate='Last Visited Minutes: %{x} <br>Average Spent on App (INR): %{y}')
-
-    
-PLOT.update_layout(width = 800, height = 800, autosize = True, showlegend = True,
-                   yaxis_title = 'Average Spent on App (INR)',
-                   xaxis_title = 'Last Visited Minutes',
-)
-PLOT.show()
 
 
 
