@@ -10,7 +10,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import calinski_harabasz_score
-from sklearn.metrics import adjusted_rand_score
+from sklearn.metrics import adjusted_rand_score    
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances
 
 
 #Conectando Base de dados ao ambiente
@@ -98,8 +100,8 @@ clustering_data = df[["Average Screen Time", "Left Review",
 
 for i in clustering_data.columns:
     MinMaxScaler(i)
-    
-from sklearn.cluster import KMeans
+
+
 kmeans = KMeans(n_clusters=3)
 clusters = kmeans.fit_predict(clustering_data)
 df["Segments"] = clusters
@@ -140,17 +142,16 @@ plt.show()
 
 
 #Métric de precisão ------------------- Davies Bouldin Index
-k = 3
-
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
+k = 3
 kmeans = KMeans(n_clusters=k, random_state=0)
 kmeans.fit(x)
 
 # Obtenha os rótulos de cluster para cada ponto de dados.
-labels = kmeans.labels_
+centroid = kmeans.cluster_centers_
 
 # Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
-db_score = davies_bouldin_score(x, labels)
+db_score = davies_bouldin_score(x, kmeans.labels_)
 
 print(f"Índice Davies-Bouldin: {db_score}")
 
