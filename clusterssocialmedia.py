@@ -149,7 +149,7 @@ kmeans.fit(x)
 # Obtenha os rótulos de cluster para cada ponto de dados.
 
 
-# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
+# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.   
 db_score = davies_bouldin_score(x, kmeans.labels_)
 
 print(f"Índice Davies-Bouldin: {db_score}")
@@ -175,6 +175,7 @@ df["Segments"] = df["Segments"].map({0: "Retained", 1:
 print(df['Segments'].head(50))
 
 print(df["Segments"].value_counts())
+print(df["Segments"].value_counts().sum())
 
 PLOT = go.Figure()
 for i in list(df["Segments"].unique()):

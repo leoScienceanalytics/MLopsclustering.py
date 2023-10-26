@@ -23,6 +23,7 @@ print('Lista de colunas do dataframe: ', colunmslist)
 print(df.isnull().sum())
 df = df.dropna()
 print(df.isnull().sum())
+print(df.shape)
 
 #SALDO: O saldo deixado nas contas dos clientes de cartão de crédito.
 #COMPRAS: Valor das compras realizadas nas contas dos clientes do cartão de crédito.
@@ -38,6 +39,16 @@ kmeans = KMeans(n_clusters=5) # Definindo o número de clusters, irá variar de 
 clusters = kmeans.fit_predict(clustering_data) #Previsão da segmentação de mercado
 df["CREDIT_CARD_SEGMENTS"] = clusters
 df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
+print(df['CREDIT_CARD_SEGMENTS'])
+
+
+
+colunas = df.columns #Criar variável que contém as colunas do dataframe 'dfnorm'
+colunmslist = colunas.tolist() #Listar de forma organizada 
+print('Lista de colunas do dataframe: ', colunmslist)
+
+print(df)
+print(df.columns)
 
 
 #Métrica de precisão ------------------------ Silhuette Score
@@ -100,6 +111,7 @@ df["CREDIT_CARD_SEGMENTS"] = df["CREDIT_CARD_SEGMENTS"].map({0: "Cluster 1", 1:
 
 print(df["CREDIT_CARD_SEGMENTS"].head(10)) #Mostrar as clusters dos 10 primeiros usuários.
 print(df['CREDIT_CARD_SEGMENTS'].value_counts())
+print(df['CREDIT_CARD_SEGMENTS'].value_counts().sum())
 
 #Visualização via Web
 PLOT = go.Figure()
