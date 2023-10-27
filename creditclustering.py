@@ -7,10 +7,11 @@ from sklearn.cluster import KMeans
 import plotly.graph_objects as go
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.metrics import silhouette_score
-from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import adjusted_rand_score
-
+from sklearn.metrics import pairwise_distances
+from itertools import combinations
+from sklearn.datasets import make_blobs
 
 df = pd.read_csv('creditcustomersegmentation.csv')
 print(df.head())
@@ -54,6 +55,7 @@ print(df.columns)
 #Métrica de precisão ------------------------ Silhuette Score
 x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
 labels = kmeans.labels_
+
 silhouette_avg = silhouette_score(x, labels)
 print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
@@ -80,25 +82,71 @@ plt.ylabel('Inertia (WCSS)')
 plt.show()
 
 
+
+
+
+
+
 #Métric de precisão ------------------- Davies Bouldin Index
-k = 3
+k = 5
 
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
 kmeans = KMeans(n_clusters=k, random_state=0)
 kmeans.fit(x)
 
-# Obtenha os rótulos de cluster para cada ponto de dados.
-labels = kmeans.labels_
-
 # Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
-db_score = davies_bouldin_score(x, labels)
+centroides = kmeans.cluster_centers_
+print('Centroids: ', centroides)
 
-print(f"Índice Davies-Bouldin: {db_score}")
+k = len(centroides)
+# Suponha que você já tem os rótulos de cluster em 'labels'
+# 'labels' é uma lista que atribui a cada ponto de dados um rótulo de cluster
+
+cluster_points = {}  # Um dicionário para armazenar os cluster points
+
+for i, label in enumerate(labels):
+    if label not in cluster_points:
+        cluster_points[label] = []  # Inicialize uma lista vazia para o cluster
+    cluster_points[label].append(x[i])  # Adicione o ponto de dados ao cluster correspondente
+
+# Agora 'clusters' é um dicionário em que cada chave representa o rótulo do cluster
+# e o valor é uma lista dos pontos de dados que pertencem a esse cluster
+
+
+# Calcular as dispersões dos clusters
+dispersions = []
+for i in range(k):
+    cluster_points = x[labels == i]  # Substitua 'seus_dados' pelos seus dados reais
+    centroid = centroides[i]
+    dispersion = np.mean(pairwise_distances(cluster_points, [centroid]))
+    dispersions.append(dispersion)
+
+# Calcular o Índice de David Bouldin
+db_index = 0
+for i in range(k):
+    max_dispersion = -1
+    for j in range(k):
+        if i != j:
+            dist = np.linalg.norm(centroides[i] - centroides[j])
+            val = (dispersions[i] + dispersions[j]) / dist
+            if val > max_dispersion:
+                max_dispersion = val
+    db_index += max_dispersion
+
+db_index /= k
+
+print("Índice de David Bouldin:", db_index)
+
+
+
+
 
 
 #Métrica de precisão --------------- Calinski Harabasz Index
+
 ch_score = calinski_harabasz_score(x, labels)
-print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) #Valor  de 1; analisar e comparar com modelos com n_cluster diferentes
+print("Índice de Calinski-Harabasz:", ch_score)
+
 
 
 
@@ -107,7 +155,7 @@ print('Métrica de precisão ------------- Calinks Harabasz Index: ', ch_score) 
 
 
 df["CREDIT_CARD_SEGMENTS"] = df["CREDIT_CARD_SEGMENTS"].map({0: "Cluster 1", 1: 
-    "Cluster 2", 2: "Cluster 3", 3: "Cluster 4", 4: "Cluster 5"}) #Mapeando as clusters
+    "Cluster 2", 2: "Cluster 3", 3: "Cluster 4", 4: "Cluster 5", 5: "Cluster 6"}) #Mapeando as clusters
 
 print(df["CREDIT_CARD_SEGMENTS"].head(10)) #Mostrar as clusters dos 10 primeiros usuários.
 print(df['CREDIT_CARD_SEGMENTS'].value_counts())
