@@ -12,6 +12,7 @@ from sklearn.metrics import adjusted_rand_score
 from sklearn.metrics import pairwise_distances
 from itertools import combinations
 from sklearn.datasets import make_blobs
+import seaborn as sns
 
 df = pd.read_csv('creditcustomersegmentation.csv')
 print(df.head())
@@ -25,6 +26,8 @@ print(df.isnull().sum())
 df = df.dropna()
 print(df.isnull().sum())
 print(df.shape)
+df = df.drop(['CUST_ID'], axis=1)
+print(df)
 
 #SALDO: O saldo deixado nas contas dos clientes de cartão de crédito.
 #COMPRAS: Valor das compras realizadas nas contas dos clientes do cartão de crédito.
@@ -63,27 +66,45 @@ print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
 
 #Métrica de precisão ----------------------- Inetria(WCSS)
-
-inertia_values = []
+def calculate_inertia(X):
+    inertia_values = []
 
 # Testar diferentes números de clusters (K) para o K-Means
-for k in range(1, 11):
-    kmeans = KMeans(n_clusters=k, random_state=0)
-    kmeans.fit(df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1))
-    inertia = kmeans.inertia_
-    inertia_values.append(inertia)
-print('Métrica de Precisão ------ Inertia: ',inertia_values)
+    for k in range(1, 11):
+        kmeans = KMeans(n_clusters=k, random_state=0)
+        kmeans.fit(X)
+        inertia = kmeans.inertia_
+        inertia_values.append(inertia)
+    print('Métrica de Precisão ------ Inertia: ',inertia_values)
 
 # Plotar um gráfico do valor de Inertia em função do número de clusters (K)
-plt.plot(range(1, 11), inertia_values, marker='o')
-plt.title('Gráfico de Inertia em função do número de clusters (K)')
-plt.xlabel('Número de Clusters (K)')
-plt.ylabel('Inertia (WCSS)')
-plt.show()
+    plt.plot(range(1, 11), inertia_values, marker='o')
+    plt.title('Gráfico de Inertia em função do número de clusters (K)')
+    plt.xlabel('Número de Clusters (K)')
+    plt.ylabel('Inertia (WCSS)')
+    plt.show()
+    
+    return inertia_values
 
 
+def optimal_number_of_clusters(inertia_values):
+    x1, y1 = 2, inertia_values[0]
+    x2, y2 = 11, inertia_values[len(inertia_values)-1]
 
+    distances = []
+    for i in range(len(inertia_values)):
+        x0 = i+2
+        y0 = inertia_values[i]
+        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
+        denominator = (((y2 - y1)**2 + (x2 - x1)**2)**0.5)
+        distances.append(numerator/denominator)
+    
+    return distances.index(max(distances)) + 2
 
+X = clustering_data
+sum_of_squares = calculate_inertia(X)
+
+number_optical = optimal_number_of_clusters(sum_of_squares)
 
 
 
