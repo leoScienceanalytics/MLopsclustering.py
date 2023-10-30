@@ -92,24 +92,57 @@ plt.ylabel("Rating")
 # Mostre o gráfico
 plt.show()
 
-clustering_data = df[["Average Screen Time", "Left Review", 
-                        "Ratings", "Last Visited Minutes", 
-                        "Average Spent on App (INR)", 
-                        "New Password Request"]]
+def calculate_inertia(X):
+    inertia_values = []
+    
+    for k in range(1, 11):
+        kmeans = KMeans(n_clusters=k, random_state=0)
+        kmeans.fit(X)
+        inertia = kmeans.inertia_
+        inertia_values.append(inertia)
+    print('Métrica de Precisão: ', inertia_values)
+    
+    plt.plot(range(1, 11), inertia_values, marker='o')
+    plt.title('Gráfico de Inertia em função do número de clusters (K)')
+    plt.xlabel('Número de Clusters (K)')
+    plt.ylabel('Inertia (WCSS)')
+    
+    return inertia_values
 
+def optical_number_of_clusters(inertia_values):
+    x1, y1 = 2, inertia_values[0]
+    x2, y2 = 11, inertia_values[len(inertia_values)]
+    
+    distance = []
+    for i in range(len(inertia_values)):
+        x0 =i+2
+        y0 =inertia_values[i]
+        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
+        denominator = (((y2-y1)**2 + (x2-x1)**2)**0.5)
+        distance.append(numerator/denominator)
+
+    return distance.index(mas(distance)) + 2
+
+clustering_data = df[["Average Spent on App (INR)", "Last Visited Minutes"]] #Definindo colunas que serão parâmetros para as clusterizações
+
+
+X = clustering_data
+sum_of_squares = calculate_inertia(X)
+number_optical = optical_number_of_clusters(sum_of_squares)
 
 for i in clustering_data.columns:
     MinMaxScaler(i)
 
 
-kmeans = KMeans(n_clusters=3)
+kmeans = KMeans(n_clusters=number_optical)
 clusters = kmeans.fit_predict(clustering_data)
 df["Segments"] = clusters
 df["Segments"] = pd.DataFrame(df["Segments"]) #Transformando o valor em um DataFrame de verdade
-
+print(df["Segments"])
 print(df['Segments'].head(50))
-
 print(df["Segments"].value_counts())
+
+
 
 #Métrica de precisão ------------------------ Silhuette Score
 x = df["Segments"].values.reshape(-1, 1)
@@ -118,32 +151,10 @@ silhouette_avg = silhouette_score(x, labels)
 print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
 
-
-
-#Métrica de precisão ----------------------- Inetria(WCSS)
-
-inertia_values = []
-
-# Testar diferentes números de clusters (K) para o K-Means
-for k in range(1, 11):
-    kmeans = KMeans(n_clusters=k, random_state=0)
-    kmeans.fit(df["Segments"].values.reshape(-1, 1))
-    inertia = kmeans.inertia_
-    inertia_values.append(inertia)
-print('Métrica de Precisão ------ Inertia: ',inertia_values)
-
-# Plotar um gráfico do valor de Inertia em função do número de clusters (K)
-plt.plot(range(1, 11), inertia_values, marker='o')
-plt.title('Gráfico de Inertia em função do número de clusters (K)')
-plt.xlabel('Número de Clusters (K)')
-plt.ylabel('Inertia (WCSS)')
-plt.show()
-
-
 #Métric de precisão ------------------- Davies Bouldin Index
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
-k = 3
-kmeans = KMeans(n_clusters=k, random_state=0)
+
+kmeans = KMeans(n_clusters=number_optical, random_state=0)
 kmeans.fit(x)
 
 # Obtenha os rótulos de cluster para cada ponto de dados.
