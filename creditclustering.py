@@ -136,7 +136,7 @@ k = number_optical
 
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
 kmeans = KMeans(n_clusters=k, random_state=0)
-kmeans.fit(x)
+kmeans.fit(X)
 
 # Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
 centroides = kmeans.cluster_centers_

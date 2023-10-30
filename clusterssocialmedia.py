@@ -48,7 +48,7 @@ color_mapping = {
 }
 
 
-mapped_colors = [color_mapping[status] for status in colors]
+mapped_colors = [color_mapping[Status] for Status in colors]
 
 
 #Usuários que Desinstalaram
@@ -80,7 +80,7 @@ color_map = {
     "Uninstalled": "red"
 }
 
-mapped_colors = [color_map[status] for status in colors]
+mapped_colors = [color_map[Status] for Status in colors]
 
 # Crie o gráfico de dispersão
 plt.scatter(x, z, s=size1, c=mapped_colors)
@@ -111,7 +111,7 @@ def calculate_inertia(X):
 
 def optical_number_of_clusters(inertia_values):
     x1, y1 = 2, inertia_values[0]
-    x2, y2 = 11, inertia_values[len(inertia_values)]
+    x2, y2 = 11, inertia_values[len(inertia_values)-1]
     
     distance = []
     for i in range(len(inertia_values)):
@@ -153,17 +153,47 @@ print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
 #Métric de precisão ------------------- Davies Bouldin Index
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
+k = number_optical
 
-kmeans = KMeans(n_clusters=number_optical, random_state=0)
-kmeans.fit(x)
+kmeans=KMeans(n_clusters=k, random_state=0)
+kmeans.fit(X)
 
-# Obtenha os rótulos de cluster para cada ponto de dados.
+centroides = kmeans.cluster_centers_
+print('Centroids: ', centroides)
+
+k = len(centroides)
+
+clusters_points = []
+
+for i, label in enumerate(labels):
+    if label not in clusters_points:
+        clusters_points[label] = []
+    clusters_points[label].append(x[i])
+    
 
 
-# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.   
-db_score = davies_bouldin_score(x, kmeans.labels_)
-
-print(f"Índice Davies-Bouldin: {db_score}")
+dispersions = []
+for i in range(k):
+    clusters_points = x[labels == i]
+    centroid = centroides[i]
+    dispersion = np.mean(pairwise_distances(clusters_points, [centroid]))
+    dispersions.append(dispersion)
+    
+    
+db_index = 0
+for i in range(k):
+    max_dispersion = -1
+    for j in range(k):
+        if i != j:
+            dist = np.linalg.norm(centroides[i]-centroides[j])
+            val = (dispersions[i]-dispersions[j]) / dist
+            if val > max_dispersion:
+                max_dispersion = val
+    db_index += max_dispersion
+    
+    
+db_index /= k
+print('David Bouldin Index: ', db_index)
 
 
 
