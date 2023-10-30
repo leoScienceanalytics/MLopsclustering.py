@@ -121,7 +121,7 @@ def optical_number_of_clusters(inertia_values):
         denominator = (((y2-y1)**2 + (x2-x1)**2)**0.5)
         distance.append(numerator/denominator)
 
-    return distance.index(mas(distance)) + 2
+    return distance.index(max(distance)) + 2
 
 clustering_data = df[["Average Spent on App (INR)", "Last Visited Minutes"]] #Definindo colunas que serão parâmetros para as clusterizações
 
