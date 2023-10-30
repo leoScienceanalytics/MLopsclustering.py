@@ -13,6 +13,7 @@ from sklearn.metrics import pairwise_distances
 from itertools import combinations
 from sklearn.datasets import make_blobs
 import seaborn as sns
+from sklearn import preprocessing
 
 df = pd.read_csv('creditcustomersegmentation.csv')
 print(df.head())
@@ -34,35 +35,23 @@ print(df)
 #CREDIT_LIMIT: O limite do cartão de crédito.
 #Clusterização será baseada em cima desses 3 grupos
 
-clustering_data = df[["BALANCE", "PURCHASES", "CREDIT_LIMIT"]] #Definindo as colunas que serão usadas como parâmetros de definição das clusters
-for i in clustering_data.columns:#Método de redimensionamento, fazendo-se possível comparar as colunas selecionadas do DataFrame.
-    MinMaxScaler(i)
-    
-    
-kmeans = KMeans(n_clusters=5) # Definindo o número de clusters, irá variar de 0 até 4.
-clusters = kmeans.fit_predict(clustering_data) #Previsão da segmentação de mercado
-df["CREDIT_CARD_SEGMENTS"] = clusters
-df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
-print(df['CREDIT_CARD_SEGMENTS'])
+
+#Gr
+sns.set(style='whitegrid')
+
+fig, axs = plt.subplots(1, 3, figsize=(15, 7.5)) #Criando objeto da figura e dos eixos
+
+sns.histplot(data=df, x='BALANCE', kde=True, color='blue', ax=axs[0])
+sns.histplot(data=df, x='PURCHASES', kde=True, color='orange', ax=axs[1])
+sns.histplot(data=df, x='CREDIT_LIMIT', kde=True, color='red', ax=axs[2])
 
 
+axs[0].set_title('Balance Distribution')
+axs[1].set_title('Purchases Distribution')
+axs[2].set_title('Credit Limit Distribution')
 
-colunas = df.columns #Criar variável que contém as colunas do dataframe 'dfnorm'
-colunmslist = colunas.tolist() #Listar de forma organizada 
-print('Lista de colunas do dataframe: ', colunmslist)
-
-print(df)
-print(df.columns)
-
-
-#Métrica de precisão ------------------------ Silhuette Score
-x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
-labels = kmeans.labels_
-
-silhouette_avg = silhouette_score(x, labels)
-print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
-
-
+fig.suptitle('Análise de Distribuição das Features de Clusterização')
+plt.show()
 
 
 #Métrica de precisão ----------------------- Inetria(WCSS)
@@ -101,15 +90,49 @@ def optimal_number_of_clusters(inertia_values):
     
     return distances.index(max(distances)) + 2
 
+
+clustering_data = df[['BALANCE', 'PURCHASES', 'CREDIT_LIMIT']] #Definindo as colunas que serão usadas como parâmetros de definição das clusters
+clustering_data = np.array(clustering_data)
+clustering_data = preprocessing.scale(clustering_data)
+clustering_data = pd.DataFrame(clustering_data)
+
 X = clustering_data
 sum_of_squares = calculate_inertia(X)
 
 number_optical = optimal_number_of_clusters(sum_of_squares)
 
+ 
+for i in clustering_data.columns:#Método de redimensionamento, fazendo-se possível comparar as colunas selecionadas do DataFrame.
+    MinMaxScaler(i)
+    
+    
+kmeans = KMeans(n_clusters=number_optical) # Definindo o número de clusters, irá variar de 0 até 4.
+clusters = kmeans.fit_predict(clustering_data) #Previsão da segmentação de mercado
+df["CREDIT_CARD_SEGMENTS"] = clusters
+df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
+print(df['CREDIT_CARD_SEGMENTS'])
+
+
+
+colunas = df.columns #Criar variável que contém as colunas do dataframe 'dfnorm'
+colunmslist = colunas.tolist() #Listar de forma organizada 
+print('Lista de colunas do dataframe: ', colunmslist)
+
+print(df)
+print(df.columns)
+
+
+#Métrica de precisão ------------------------ Silhuette Score
+x = df["CREDIT_CARD_SEGMENTS"].values.reshape(-1, 1)
+labels = kmeans.labels_
+
+silhouette_avg = silhouette_score(x, labels)
+print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
+
 
 
 #Métric de precisão ------------------- Davies Bouldin Index
-k = 5
+k = number_optical
 
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
 kmeans = KMeans(n_clusters=k, random_state=0)
@@ -132,6 +155,7 @@ for i, label in enumerate(labels):
 
 # Agora 'clusters' é um dicionário em que cada chave representa o rótulo do cluster
 # e o valor é uma lista dos pontos de dados que pertencem a esse cluster
+
 
 
 # Calcular as dispersões dos clusters
@@ -157,9 +181,6 @@ for i in range(k):
 db_index /= k
 
 print("Índice de David Bouldin:", db_index)
-
-
-
 
 
 
