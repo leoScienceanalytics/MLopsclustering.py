@@ -99,14 +99,14 @@ clustering_data = pd.DataFrame(clustering_data)
 X = clustering_data
 sum_of_squares = calculate_inertia(X)
 
-number_optical = optimal_number_of_clusters(sum_of_squares)
+number_optimal = optimal_number_of_clusters(sum_of_squares)
 
  
 for i in clustering_data.columns:#Método de redimensionamento, fazendo-se possível comparar as colunas selecionadas do DataFrame.
     MinMaxScaler(i)
     
     
-kmeans = KMeans(n_clusters=number_optical) # Definindo o número de clusters, irá variar de 0 até 4.
+kmeans = KMeans(n_clusters=number_optimal) # Definindo o número de clusters, irá variar de 0 até 4.
 clusters = kmeans.fit_predict(clustering_data) #Previsão da segmentação de mercado
 df["CREDIT_CARD_SEGMENTS"] = clusters
 df['CREDIT_CARD_SEGMENTS'] = pd.DataFrame(df['CREDIT_CARD_SEGMENTS'])
@@ -132,56 +132,31 @@ print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
 
 #Métric de precisão ------------------- Davies Bouldin Index
-k = number_optical
-
-# Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
-kmeans = KMeans(n_clusters=k, random_state=0)
+kmeans = KMeans(n_clusters=number_optimal)
 kmeans.fit(X)
 
-# Calcule o Índice Davies-Bouldin para avaliar a qualidade dos clusters.
-centroides = kmeans.cluster_centers_
-print('Centroids: ', centroides)
-
-k = len(centroides)
-# Suponha que você já tem os rótulos de cluster em 'labels'
-# 'labels' é uma lista que atribui a cada ponto de dados um rótulo de cluster
-
-cluster_points = {}  # Um dicionário para armazenar os cluster points
-
-for i, label in enumerate(labels):
-    if label not in cluster_points:
-        cluster_points[label] = []  # Inicialize uma lista vazia para o cluster
-    cluster_points[label].append(x[i])  # Adicione o ponto de dados ao cluster correspondente
-
-# Agora 'clusters' é um dicionário em que cada chave representa o rótulo do cluster
-# e o valor é uma lista dos pontos de dados que pertencem a esse cluster
+# Os centróides dos clusters são acessados usando 'cluster_centers_' após o ajuste.
+cluster_centers = kmeans.cluster_centers_
 
 
 
-# Calcular as dispersões dos clusters
-dispersions = []
-for i in range(k):
-    cluster_points = x[labels == i]  # Substitua 'seus_dados' pelos seus dados reais
-    centroid = centroides[i]
-    dispersion = np.mean(pairwise_distances(cluster_points, [centroid]))
-    dispersions.append(dispersion)
 
-# Calcular o Índice de David Bouldin
-db_index = 0
-for i in range(k):
-    max_dispersion = -1
-    for j in range(k):
+n_clusters = len(cluster_centers)
+
+dbi = 0.0
+for i in range(n_clusters):
+    max_dissimilarity = 0
+    for j in range(n_clusters):
         if i != j:
-            dist = np.linalg.norm(centroides[i] - centroides[j])
-            val = (dispersions[i] + dispersions[j]) / dist
-            if val > max_dispersion:
-                max_dispersion = val
-    db_index += max_dispersion
+            dist = pairwise_distances([cluster_centers[i]], [cluster_centers[j]])[0][0]
+            if dist > max_dissimilarity:
+                max_dissimilarity = dist
+    avg_intra_cluster_distance = np.mean(pairwise_distances(X[labels == i], [cluster_centers[i]]))
+    dbi += (avg_intra_cluster_distance + avg_intra_cluster_distance) / max_dissimilarity
 
-db_index /= k
+dbi /= n_clusters
 
-print("Índice de David Bouldin:", db_index)
-
+print("DBI:", dbi)
 
 
 #Métrica de precisão --------------- Calinski Harabasz Index

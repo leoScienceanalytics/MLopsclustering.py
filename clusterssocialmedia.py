@@ -128,13 +128,13 @@ clustering_data = df[["Average Spent on App (INR)", "Last Visited Minutes"]] #De
 
 X = clustering_data
 sum_of_squares = calculate_inertia(X)
-number_optical = optical_number_of_clusters(sum_of_squares)
+number_optimal = optical_number_of_clusters(sum_of_squares)
 
 for i in clustering_data.columns:
     MinMaxScaler(i)
 
 
-kmeans = KMeans(n_clusters=number_optical)
+kmeans = KMeans(n_clusters=number_optimal)
 clusters = kmeans.fit_predict(clustering_data)
 df["Segments"] = clusters
 df["Segments"] = pd.DataFrame(df["Segments"]) #Transformando o valor em um DataFrame de verdade
@@ -153,47 +153,33 @@ print('Métrica  de Precisão ------- Silhouette Score: ',silhouette_avg)
 
 #Métric de precisão ------------------- Davies Bouldin Index
 # Crie um modelo de clustering (K-Means, por exemplo) com o número de clusters desejado.
-k = number_optical
 
-kmeans=KMeans(n_clusters=k, random_state=0)
+
+kkmeans = KMeans(n_clusters=number_optimal)
 kmeans.fit(X)
 
-centroides = kmeans.cluster_centers_
-print('Centroids: ', centroides)
-
-k = len(centroides)
-
-clusters_points = []
-
-for i, label in enumerate(labels):
-    if label not in clusters_points:
-        clusters_points[label] = []
-    clusters_points[label].append(x[i])
-    
+# Os centróides dos clusters são acessados usando 'cluster_centers_' após o ajuste.
+cluster_centers = kmeans.cluster_centers_
 
 
-dispersions = []
-for i in range(k):
-    clusters_points = x[labels == i]
-    centroid = centroides[i]
-    dispersion = np.mean(pairwise_distances(clusters_points, [centroid]))
-    dispersions.append(dispersion)
-    
-    
-db_index = 0
-for i in range(k):
-    max_dispersion = -1
-    for j in range(k):
+
+
+n_clusters = len(cluster_centers)
+
+dbi = 0.0
+for i in range(n_clusters):
+    max_dissimilarity = 0
+    for j in range(n_clusters):
         if i != j:
-            dist = np.linalg.norm(centroides[i]-centroides[j])
-            val = (dispersions[i]-dispersions[j]) / dist
-            if val > max_dispersion:
-                max_dispersion = val
-    db_index += max_dispersion
-    
-    
-db_index /= k
-print('David Bouldin Index: ', db_index)
+            dist = pairwise_distances([cluster_centers[i]], [cluster_centers[j]])[0][0]
+            if dist > max_dissimilarity:
+                max_dissimilarity = dist
+    avg_intra_cluster_distance = np.mean(pairwise_distances(X[labels == i], [cluster_centers[i]]))
+    dbi += (avg_intra_cluster_distance + avg_intra_cluster_distance) / max_dissimilarity
+
+dbi /= n_clusters
+
+print("DBI:", dbi)
 
 
 
