@@ -36,7 +36,7 @@ print(df)
 #Clusterização será baseada em cima desses 3 grupos
 
 
-#Gr
+#Gráfico das Distribuições Normais
 sns.set(style='whitegrid')
 
 fig, axs = plt.subplots(1, 3, figsize=(15, 7.5)) #Criando objeto da figura e dos eixos
