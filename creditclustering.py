@@ -39,7 +39,7 @@ print(df)
 #Gráfico das Distribuições Normais
 sns.set(style='whitegrid')
 
-fig, axs = plt.subplots(1, 3, figsize=(15, 7.5)) #Criando objeto da figura e dos eixos
+fig, axs = plt.subplots(1, 3, figsize=(10, 5)) #Criando objeto da figura e dos eixos
 
 sns.histplot(data=df, x='BALANCE', kde=True, color='blue', ax=axs[0])
 sns.histplot(data=df, x='PURCHASES', kde=True, color='orange', ax=axs[1])
@@ -100,6 +100,7 @@ X = clustering_data
 sum_of_squares = calculate_inertia(X)
 
 number_optimal = optimal_number_of_clusters(sum_of_squares)
+print(number_optimal)
 
  
 for i in clustering_data.columns:#Método de redimensionamento, fazendo-se possível comparar as colunas selecionadas do DataFrame.
