@@ -19,8 +19,8 @@ df = pd.read_csv('creditcustomersegmentation.csv')
 print(df.head())
 print(df.shape[1])
 
-colunas = df.columns #Criar variável que contém as colunas do dataframe 'dfnorm'
-colunmslist = colunas.tolist() #Listar de forma organizada 
+colunas = df.columns #Criar variável q ue contém as colunas do dataframe 'dfnorm'
+colunmslist = colunas.tolist() #Listarde forma organizada 
 print('Lista de colunas do dataframe: ', colunmslist)
 
 print(df.isnull().sum())
