@@ -11,7 +11,6 @@ from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import adjusted_rand_score
 from sklearn.metrics import pairwise_distances
 from itertools import combinations
-from sklearn.datasets import make_blobs
 import seaborn as sns
 from sklearn import preprocessing
 
@@ -23,12 +22,20 @@ colunas = df.columns #Criar variável q ue contém as colunas do dataframe 'dfno
 colunmslist = colunas.tolist() #Listarde forma organizada 
 print('Lista de colunas do dataframe: ', colunmslist)
 
+
+#Tratamento do dataset
 print(df.isnull().sum())
 df = df.dropna()
 print(df.isnull().sum())
 print(df.shape)
 df = df.drop(['CUST_ID'], axis=1)
 print(df)
+
+
+
+#Teste de multicolinearidade
+colunas = ['BALANCE', 'PURCHASES', 'CREDIT_LIMIT']
+print('Teste de multicolinearidade: ', df[colunas].corr()) #Resultado --------- não há evidências.
 
 #SALDO: O saldo deixado nas contas dos clientes de cartão de crédito.
 #COMPRAS: Valor das compras realizadas nas contas dos clientes do cartão de crédito.
